@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# {{ ansible_managed }}
+
+$(which duplicity) incremental --no-encryption {% for source in backup_source %} --include "{{ source }}" {% endfor %} --exclude "**" / file://{{ backup_target }}
+chown -R :{{ backup_group_name }} {{ backup_target }}
+find {{backup_target}} -type f -exec chmod g=r "{}" \;

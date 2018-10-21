@@ -1,0 +1,47 @@
+---
+- name: Install duplicity package
+  apt: state=installed pkg={{ item }}
+  with_items:
+    - duplicity
+
+- name: Add backup group
+  group:
+    name: "{{ backup_group_name }}"
+    state: present
+  become: true
+
+- name: Creates duplicity backup target directory
+  file:
+    path: "{{ backup_target }}"
+    state: directory
+    owner: root
+    group: "{{ backup_group_name }}"
+    mode: 0770
+  become: true
+
+- name: Create backup scripts
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ item }}"
+    owner: root
+    group: root
+    mode: 0770
+  with_items:
+    - "{{ full_backup_script_path }}"
+    - "{{ incremental_backup_script_path }}"
+  become: true
+
+- name: Add full backup cronjob (1AM every sunday)
+  cron:
+    name: "duplicity-backup-full"
+    weekday: 0
+    hour: 01
+    minute: 0
+    job: "{{ full_backup_script_path }}"
+
+- name: Add incremental backup cronjob (every 6th hour)
+  cron:
+    name: "duplicity-backup-incremental"
+    hour: "*/6"
+    minute: 0
+    job: "{{ incremental_backup_script_path }}"

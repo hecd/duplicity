@@ -1,0 +1,8 @@
+---
+backup_source:
+  - "/var/www"
+backup_target: /var/duplicity/
+backup_group_name: duplicity
+
+full_backup_script_path: /usr/local/sbin/backup-full.sh
+incremental_backup_script_path: /usr/local/sbin/backup-incremental.sh

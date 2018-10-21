@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# {{ ansible_managed }}
+
+$(which duplicity) remove-all-but-n-full 4 --force file://{{ backup_target }}
+$(which duplicity) full --no-encryption {% for source in backup_source %} --include "{{ source }}" {% endfor %} --exclude "**" / file://{{ backup_target }}
+find {{backup_target}} -type f -exec chmod g=r "{}" \;
